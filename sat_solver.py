@@ -25,7 +25,7 @@ class sat_solve:
     def var(i, j, k):
         return (i - 1) * rows * columns + (j - 1) * columns + (k - 1) + 1
 
-    def check_squares_around(self, board, i, j):
+    def check_squares_around(board, i, j):
         return
 
     def solve(self, board):
@@ -37,9 +37,9 @@ class sat_solve:
                 clauses.append([self.var(i, j, k) for k in k_values])
 
                 # C2 the entry at row i col j has at most on value
-                for k in range(1, rows + 1):
-                    for l in range(k + 1, columns + 1):
-                        clauses.append([-self.var(i, j, k), -self.var(i, j, k)])
+                for k in range(1, len(k_values) + 1):
+                    for l in range(k + 1, len(k_values) + 1):
+                        clauses.append([-self.var(i, j, k), -self.var(i, j, l)])
 
         # for i in range(1, rows + 1):
         #    for j in range(1, columns + 1):
