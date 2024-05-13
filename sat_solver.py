@@ -9,6 +9,8 @@ columns = 3
 dim = rows * columns
 mine = 9
 undiscovered = 10
+
+# Maybe shouldn't include undiscovered (need to find how to set areas as mines)
 k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 
@@ -33,21 +35,25 @@ class sat_solve:
     # j: j as integer
     def check_mines(board, i, j):
         state = board[i][j]
+        tiles = []
         count = 0
         if state == mine:
-            return mine
+            return []
         if state == undiscovered:
-            return undiscovered
+            return []
 
         for a in range(-1, 2):
             for b in range(-1, 2):
-                if (a + i > 0 and a + 1 < rows) and (b + j > 0 and b + j < columns):
+                if (a + i > 0 and a + 1 < rows - 1) and (
+                    b + j > 0 and b + j < columns - 1
+                ):
                     if board[i + a][j + b] == undiscovered:
+                        tiles.append([i + a, j + b])
                         count += 1
 
         if count == state:
-            return mine
-        return 0
+            return tiles
+        return []
 
     def solve(self, board):
         # k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -62,11 +68,15 @@ class sat_solve:
                     for l in range(k + 1, len(k_values) + 1):
                         clauses.append([-self.var(i, j, k), -self.var(i, j, l)])
 
-        for i in range(1, rows + 1):
-            for j in range(1, columns + 1):
+        for i in range(0, rows):
+            for j in range(0, columns):
                 # If the state number equals the number of undiscovered squares next to it,
                 # Create a clause that sets the undiscovered squares to mines
-                self.check_mines(board, i, j)
+                mines = self.check_mines(board, i, j)
+                if mines != []:
+                    print(mines)
+                    for m in mines:
+                        clauses.append([self.var(m[0], m[1], 9)])
 
         s = Solver()
         for clause in clauses:
