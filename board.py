@@ -49,8 +49,15 @@ def solve_current_state(current_board, numbers_board):
 # 10 = Not Discovered
 
 mine = 9
-undiscovered = -1
-board = [[mine, 1, 0], [1, 2, 1], [0, 1, mine]]
-current_board = [[10, 10, 10], [10, 10, 10], [0, 10, 10]]
+undiscovered = 10
+safe = 11
+board = [[mine, 1, 0], [1, 1, 0], [0, 0, 0]]
+# current_board = [[undiscovered, 1, 0], [1, 1, 0], [0, 0, 0]]
+current_board = [
+    [mine, undiscovered, undiscovered],
+    [undiscovered, 1, undiscovered],
+    [undiscovered, undiscovered, undiscovered],
+]
+# current_board = [[10, 10, 10], [10, 10, 10], [0, 10, 10]]
 numbers_board = generate_numbers(mine_board)
 solve_current_state(current_board, numbers_board)
