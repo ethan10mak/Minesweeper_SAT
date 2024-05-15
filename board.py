@@ -6,8 +6,8 @@ import numpy as np
 from sat_solver import sat_solve
 import random
 
-rows = 3
-columns = 3
+rows = 5
+columns = 5
 dim = rows * columns
 
 
@@ -88,7 +88,7 @@ mine = 9
 undiscovered = 10
 safe = 11
 board = [[mine, 1, 0], [1, 1, 0], [0, 0, 0]]
-board = mine_board(3, 3, 2, [1, 1])
+board = mine_board(rows, columns, 5, [1, 1])
 board = generate_numbers(board, rows, columns)
 
 print_board(board)

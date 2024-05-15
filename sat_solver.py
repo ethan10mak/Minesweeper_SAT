@@ -4,8 +4,8 @@ import sys
 from pycryptosat import Solver
 import numpy as np
 
-rows = 3
-columns = 3
+rows = 5
+columns = 5
 dim = rows * columns
 mine = 9
 undiscovered = 10
