@@ -8,6 +8,7 @@ import random
 
 rows = 5
 columns = 5
+total_mines = 5
 dim = rows * columns
 
 
@@ -21,7 +22,9 @@ def print_board(board):
             if j == 9:
                 print(" *", end="")
             elif j == 10:
-                print(" X", j, end="")
+                print(" X", end="")
+            elif j == 12:
+                print(" F", end="")
             else:
                 print(" " + str(j), end="")
         print("")
@@ -54,23 +57,47 @@ def mine_board(r, c, n, first):
     return board
 
 
+def create_empty_board(r, c):
+    board = []
+    for i in range(0, r):
+        temp_list = []
+        for j in range(0, c):
+            temp_list.append(10)
+        board.append(temp_list)
+    return board
+
+
 # Generate Numbers in different board function
 # Given mine board, give numbers that represent how many mines are next to it
 # The result is the final solution of the board
 def generate_numbers(board, r, c):
+    new_board = board
     for i in range(0, r):
         for j in range(0, c):
-            if board[i][j] != mine:
+            if new_board[i][j] != mine:
                 count = 0
                 for a in range(-1, 2):
                     for b in range(-1, 2):
                         if (a + i > -1 and a + i < rows) and (
                             b + j > -1 and b + j < columns
                         ):
-                            if board[i + a][j + b] == mine:
+                            if new_board[i + a][j + b] == mine:
                                 count += 1
-                board[i][j] = count
-    return board
+                new_board[i][j] = count
+    return new_board
+
+
+# answer: the board answer with all revealed squares
+# current: the current state of the board (what the player sees)
+# tile: the tile as [row, column]
+# flag: Boolean, True if flaggin for mine, False if checking square
+# Returns current state of board after tile is flagged or searched
+def take_turn(answer, current, tile, flag):
+    if flag:
+        current[tile[0]][tile[1]] = 12
+    else:
+        current[tile[0]][tile[1]] = answer[tile[0]][tile[1]]
+    return current
 
 
 # solve_current_state
@@ -87,15 +114,12 @@ def solve_current_state(current_board):
 mine = 9
 undiscovered = 10
 safe = 11
-board = [[mine, 1, 0], [1, 1, 0], [0, 0, 0]]
-board = mine_board(rows, columns, 5, [1, 1])
-board = generate_numbers(board, rows, columns)
-
-print_board(board)
-current_board = [
-    [mine, undiscovered, undiscovered],
-    [undiscovered, 1, undiscovered],
-    [undiscovered, undiscovered, undiscovered],
-]
-# numbers_board = generate_numbers(mine_board)
-solve_current_state(current_board)
+flag = 12
+board_answer = mine_board(rows, columns, 5, [1, 1])
+board_answer = generate_numbers(board_answer, rows, columns)
+print_board(board_answer)
+current_board = create_empty_board(rows, columns)
+print_board(current_board)
+current_board = take_turn(board_answer, current_board, [1, 1], False)
+print_board(current_board)
+solve_current_state(board_answer)
