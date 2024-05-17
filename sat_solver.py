@@ -62,7 +62,7 @@ class sat_solve:
         for a in range(-1, 2):
             for b in range(-1, 2):
                 if (a + i > -1 and a + i < rows) and (b + j > -1 and b + j < columns):
-                    if board[i + a][j + b] == mine:
+                    if board[i + a][j + b] == mine or board[i + a][j + b] == 12:
                         count += 1
                     if board[i + a][j + b] == undiscovered:
                         tiles.append([i + a, j + b])
@@ -108,3 +108,4 @@ class sat_solve:
         sat, solution = s.solve()
         # print(sat)
         # print(solution)
+        return [sat, solution]
