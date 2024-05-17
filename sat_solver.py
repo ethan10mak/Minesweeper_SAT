@@ -4,8 +4,8 @@ import sys
 from pycryptosat import Solver
 import numpy as np
 
-rows = 5
-columns = 5
+rows = 10
+columns = 10
 dim = rows * columns
 mine = 9
 undiscovered = 10
@@ -17,8 +17,8 @@ k_values = [1, 2, 3, 4, 5, 6, 7, 8, mine, undiscovered, safe]
 
 class sat_solve:
     def __init__(self):
-        self.rows = 3
-        self.columns = 3
+        self.rows = 10
+        self.columns = 10
         self.dim = self.rows * self.columns
         self.mine = 9
         self.k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]

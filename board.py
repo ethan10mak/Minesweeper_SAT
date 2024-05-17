@@ -6,9 +6,9 @@ import numpy as np
 from sat_solver import sat_solve
 import random
 
-rows = 5
-columns = 5
-total_mines = 5
+rows = 10
+columns = 10
+total_mines = 10
 dim = rows * columns
 
 
@@ -153,7 +153,7 @@ mine = 9
 undiscovered = 10
 safe = 11
 flag = 12
-board_answer = mine_board(rows, columns, 5, [1, 1])
+board_answer = mine_board(rows, columns, total_mines, [1, 1])
 board_answer = generate_numbers(board_answer, rows, columns)
 print_board(board_answer)
 current_board = create_empty_board(rows, columns)
