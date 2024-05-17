@@ -19,11 +19,9 @@ def rev_var(n):
     if n > 121:
         i = (n - 1) // 121
         n = n - (i * 121)
-        print(n)
     if n > 11:
         j = (n - 1) // 11
         n = n - (j * 11)
-        print(n)
     k = n
     return [i, j, k]
 
@@ -69,7 +67,6 @@ def mine_board(r, c, n, first):
                         if first[0] + a == i and first[1] + b == j:
                             check = True
         mines.append([i, j])
-    print(mines)
 
     board = []
     for i in range(0, r):
@@ -137,14 +134,12 @@ def solve_current_state(current_board, board_answer):
     for i in range(1, len(solution)):
         if i % 11 == 0 and solution[i] == True:
             [a, b, c] = rev_var(i)
-            print("safe")
-            print(rev_var(i))
             current_board = take_turn(board_answer, current_board, [a, b], False)
-        if i % 9 == 0 and solution[i] == True:
+        if i % 11 == 9 and solution[i] == True:
             [a, b, c] = rev_var(i)
-            print("flag")
-            print(rev_var(i))
             current_board = take_turn(board_answer, current_board, [a, b], True)
+    print_board(board_answer)
+    print()
     print_board(current_board)
     return 0
 

@@ -39,7 +39,7 @@ class sat_solve:
         state = board[i][j]
         tiles = []
         count = 0
-        if state == mine:
+        if state == mine or state == 12:
             return []
         if state == undiscovered:
             return []
@@ -49,6 +49,8 @@ class sat_solve:
                     if board[i + a][j + b] == undiscovered:
                         tiles.append([i + a, j + b])
                         count += 1
+                    if board[i + a][j + b] == mine or board[i + a][j + b] == 12:
+                        state = state - 1
         if count == state:
             return tiles
         return []
@@ -57,7 +59,7 @@ class sat_solve:
         state = board[i][j]
         tiles = []
         count = 0
-        if state == mine or state == undiscovered:
+        if state == mine or state == undiscovered or state == 12:
             return []
         for a in range(-1, 2):
             for b in range(-1, 2):
@@ -92,6 +94,7 @@ class sat_solve:
 
                 mines = self.check_mines(board, i, j)
                 if mines != []:
+                    print("FOUND MINES!!!")
                     for m in mines:
                         clauses.append([self.var(m[0], m[1], 9)])
 
@@ -103,7 +106,7 @@ class sat_solve:
 
         s = Solver()
         for clause in clauses:
-            # print(clause)
+            #   print(clause)
             s.add_clause(clause)
         sat, solution = s.solve()
         # print(sat)
