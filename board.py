@@ -8,20 +8,23 @@ import random
 
 rows = 10
 columns = 10
-total_mines = 10
+total_mines = 15
 dim = rows * columns
 
 
 def rev_var(n):
+    print(n)
     i = 0
     j = 0
     k = 0
-    if n > 121:
-        i = (n - 1) // 121
-        n = n - (i * 121)
-    if n > 11:
-        j = (n - 1) // 11
-        n = n - (j * 11)
+    div_i = 121
+    div_j = 11
+    if n > div_i:
+        i = (n - 1) // div_i
+        n = n - (i * div_i)
+    if n > div_j:
+        j = (n - 1) // (div_j)
+        n = n - (j * div_j)
     k = n
     return [i, j, k]
 
@@ -134,9 +137,11 @@ def solve_current_state(current_board, board_answer):
     for i in range(1, len(solution)):
         if i % 11 == 0 and solution[i] == True:
             [a, b, c] = rev_var(i)
+            print(rev_var(i))
             current_board = take_turn(board_answer, current_board, [a, b], False)
         if i % 11 == 9 and solution[i] == True:
             [a, b, c] = rev_var(i)
+            print(rev_var(i))
             current_board = take_turn(board_answer, current_board, [a, b], True)
     print_board(board_answer)
     print()
@@ -153,12 +158,16 @@ mine = 9
 undiscovered = 10
 safe = 11
 flag = 12
-board_answer = mine_board(rows, columns, total_mines, [1, 1])
-board_answer = generate_numbers(board_answer, rows, columns)
-print_board(board_answer)
+
+
 current_board = create_empty_board(rows, columns)
 print_board(current_board)
-current_board = take_turn(board_answer, current_board, [1, 1], False)
+r = int(input("What is your row?"))
+c = int(input("What is your column?"))
+
+board_answer = mine_board(rows, columns, total_mines, [r, c])
+board_answer = generate_numbers(board_answer, rows, columns)
+current_board = take_turn(board_answer, current_board, [r, c], False)
 print_board(current_board)
 # while True:
 #    r = int(input("What is your row?"))

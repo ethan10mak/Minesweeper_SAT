@@ -11,7 +11,6 @@ mine = 9
 undiscovered = 10
 safe = 11
 
-# Maybe shouldn't include undiscovered (need to find how to set areas as mines)
 k_values = [1, 2, 3, 4, 5, 6, 7, 8, mine, undiscovered, safe]
 
 
@@ -25,12 +24,11 @@ class sat_solve:
 
     # Returns the corresponding variable number
     # Ex var(i, j, k) represents variable x at row i, column j, and value k
-
+    # original only worked with grid of 11 * 11 dimensions.
+    # Need to find a formula that can return any dimensions
     def var(i, j, k):
         return (i * 11 * 11) + (j * 11) + k
         # return (i - 1) * rows * columns + (j - 1) * columns + (k - 1) + 1
-
-    # return
 
     # board: gives state of board
     # i: i as integer
@@ -106,7 +104,7 @@ class sat_solve:
 
         s = Solver()
         for clause in clauses:
-            #   print(clause)
+            # print(clause)
             s.add_clause(clause)
         sat, solution = s.solve()
         # print(sat)
