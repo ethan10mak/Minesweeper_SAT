@@ -27,7 +27,7 @@ class sat_solve:
     # original only worked with grid of 11 * 11 dimensions.
     # Need to find a formula that can return any dimensions
     def var(i, j, k):
-        return (i * 11 * 11) + (j * 11) + k
+        return (i * 16 * 30) + (j * 16) + k
         # return (i - 1) * rows * columns + (j - 1) * columns + (k - 1) + 1
 
     # board: gives state of board
@@ -92,7 +92,6 @@ class sat_solve:
 
                 mines = self.check_mines(board, i, j)
                 if mines != []:
-                    print("FOUND MINES!!!")
                     for m in mines:
                         clauses.append([self.var(m[0], m[1], 9)])
 
@@ -104,7 +103,7 @@ class sat_solve:
 
         s = Solver()
         for clause in clauses:
-            # print(clause)
+            print(clause)
             s.add_clause(clause)
         sat, solution = s.solve()
         # print(sat)

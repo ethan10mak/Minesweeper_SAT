@@ -13,7 +13,6 @@ dim = rows * columns
 
 
 def rev_var(n):
-    print(n)
     i = 0
     j = 0
     k = 0
@@ -114,8 +113,22 @@ def generate_numbers(board, r, c):
     return new_board
 
 
-def clear_zeros():
-    return 0
+def clear_zeros(answer, current, i, j):
+    if current[i][j] != 0:
+        current[i][j] = answer[i][j]
+        return current
+    for a in range(-1, 2):
+        for b in range(-1, 2):
+            if (a + i > -1 and a + i < rows) and (b + j > -1 and b + j < columns):
+                if not (a == 0 and b == 0):
+                    if current[i + a][j + b] != answer[i + a][j + b]:
+                        current[i + a][j + b] = answer[i + a][j + b]
+                        current = clear_zeros(answer, current, i + a, j + b)
+                    else:
+                        current[i + a][j + b] = answer[i + a][j + b]
+                    # current = clear_zeros(answer, current, i + a, j + b)
+
+    return current
 
 
 # answer: the board answer with all revealed squares
@@ -128,6 +141,9 @@ def take_turn(answer, current, tile, flag):
         current[tile[0]][tile[1]] = 12
     else:
         current[tile[0]][tile[1]] = answer[tile[0]][tile[1]]
+        clear_zeros(board_answer, current_board, tile[0], tile[1])
+        if current[tile[0]][tile[1]] == mine:
+            print("GAME OVER!!!")
     return current
 
 
@@ -135,14 +151,13 @@ def take_turn(answer, current, tile, flag):
 def solve_current_state(current_board, board_answer):
     [sat, solution] = sat_solve.solve(sat_solve, current_board)
     for i in range(1, len(solution)):
+        [a, b, c] = rev_var(i)
         if i % 11 == 0 and solution[i] == True:
-            [a, b, c] = rev_var(i)
-            print(rev_var(i))
             current_board = take_turn(board_answer, current_board, [a, b], False)
+            clear_zeros(board_answer, current_board, a, b)
         if i % 11 == 9 and solution[i] == True:
-            [a, b, c] = rev_var(i)
-            print(rev_var(i))
             current_board = take_turn(board_answer, current_board, [a, b], True)
+        # print(str(a) + " " + str(b))
     print_board(board_answer)
     print()
     print_board(current_board)
@@ -168,6 +183,8 @@ c = int(input("What is your column?"))
 board_answer = mine_board(rows, columns, total_mines, [r, c])
 board_answer = generate_numbers(board_answer, rows, columns)
 current_board = take_turn(board_answer, current_board, [r, c], False)
+print_board(board_answer)
+print()
 print_board(current_board)
 # while True:
 #    r = int(input("What is your row?"))
