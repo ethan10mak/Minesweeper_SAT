@@ -6,9 +6,9 @@ import numpy as np
 from sat_solver import sat_solve
 import random
 
-rows = 10
-columns = 10
-total_mines = 15
+rows = 16
+columns = 30
+total_mines = 80
 dim = rows * columns
 
 
@@ -16,8 +16,11 @@ def rev_var(n):
     i = 0
     j = 0
     k = 0
-    div_i = 121
+    div_i = 11 * 11
     div_j = 11
+    if columns > 11:
+        div_i = columns * columns
+        div_j = columns
     if n > div_i:
         i = (n - 1) // div_i
         n = n - (i * div_i)
@@ -152,12 +155,17 @@ def solve_current_state(current_board, board_answer):
     [sat, solution] = sat_solve.solve(sat_solve, current_board)
     for i in range(1, len(solution)):
         [a, b, c] = rev_var(i)
-        if i % 11 == 0 and solution[i] == True:
+        base = 11
+        if columns > 11:
+            base = columns
+        decider = 0
+        if base > 11:
+            decider = 11
+        if i % base == decider and solution[i] == True:
             current_board = take_turn(board_answer, current_board, [a, b], False)
             clear_zeros(board_answer, current_board, a, b)
-        if i % 11 == 9 and solution[i] == True:
+        if i % base == 9 and solution[i] == True:
             current_board = take_turn(board_answer, current_board, [a, b], True)
-        # print(str(a) + " " + str(b))
     print_board(board_answer)
     print()
     print_board(current_board)

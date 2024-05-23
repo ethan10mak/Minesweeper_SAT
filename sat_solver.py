@@ -4,8 +4,8 @@ import sys
 from pycryptosat import Solver
 import numpy as np
 
-rows = 10
-columns = 10
+rows = 16
+columns = 30
 dim = rows * columns
 mine = 9
 undiscovered = 10
@@ -16,8 +16,8 @@ k_values = [1, 2, 3, 4, 5, 6, 7, 8, mine, undiscovered, safe]
 
 class sat_solve:
     def __init__(self):
-        self.rows = 10
-        self.columns = 10
+        self.rows = 11
+        self.columns = 11
         self.dim = self.rows * self.columns
         self.mine = 9
         self.k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -27,7 +27,10 @@ class sat_solve:
     # original only worked with grid of 11 * 11 dimensions.
     # Need to find a formula that can return any dimensions
     def var(i, j, k):
-        return (i * 16 * 30) + (j * 16) + k
+        if columns < 11:
+            return (i * 11 * 11) + (j * 11) + k
+        else:
+            return (i * columns * columns) + (j * columns) + k
         # return (i - 1) * rows * columns + (j - 1) * columns + (k - 1) + 1
 
     # board: gives state of board
@@ -87,7 +90,7 @@ class sat_solve:
             for j in range(0, columns):
                 # If the state number equals the number of undiscovered squares next to it,
                 # Create a clause that sets the undiscovered squares to mines
-                if board[i][j] in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
+                if board[i][j] in [1, 2, 3, 4, 5, 6, 7, 8]:
                     clauses.append([self.var(i, j, board[i][j])])
 
                 mines = self.check_mines(board, i, j)
@@ -96,14 +99,12 @@ class sat_solve:
                         clauses.append([self.var(m[0], m[1], 9)])
 
                 safe = self.check_safe(board, i, j)
-
                 if safe != []:
                     for s in safe:
                         clauses.append([self.var(s[0], s[1], 11)])
 
         s = Solver()
         for clause in clauses:
-            print(clause)
             s.add_clause(clause)
         sat, solution = s.solve()
         # print(sat)
