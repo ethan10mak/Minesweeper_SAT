@@ -10,6 +10,8 @@ dim = rows * columns
 mine = 9
 undiscovered = 10
 safe = 11
+flag = 12
+chance = 13
 
 k_values = [1, 2, 3, 4, 5, 6, 7, 8, mine, undiscovered, safe]
 
@@ -33,9 +35,11 @@ class sat_solve:
             return (i * columns * columns) + (j * columns) + k
         # return (i - 1) * rows * columns + (j - 1) * columns + (k - 1) + 1
 
+    # Checks surrounding area of tile if undiscovered area are mines
     # board: gives state of board
     # i: i as integer
     # j: j as integer
+
     def check_mines(board, i, j):
         state = board[i][j]
         tiles = []
@@ -56,6 +60,7 @@ class sat_solve:
             return tiles
         return []
 
+    # Checks surrounding area of tile if undiscovered area is safe
     def check_safe(board, i, j):
         state = board[i][j]
         tiles = []
@@ -71,6 +76,56 @@ class sat_solve:
                         tiles.append([i + a, j + b])
         if count == state:
             return tiles
+        return []
+
+    # Follows 1-1-x pattern
+    def advanced_check_safe(board, i, j):
+        state = board[i][j]
+        un_tiles = []
+        num_tiles = []
+        count = 0
+        if state == mine or state == undiscovered or state == 12:
+            return []
+        for a in range(-1, 2):
+            for b in range(-1, 2):
+                if (a + i > -1 and a + i < rows) and (b + j > -1 and b + j < columns):
+                    if board[i + a][j + b] == mine or board[i + a][j + b] == 12:
+                        count -= 1
+                    elif board[i + a][j + b] == undiscovered:
+                        un_tiles.append([i + a, j + b])
+                        count += 1
+                    else:
+                        num_tiles.append([i + a, j + b])
+        if count != 2:
+            return []
+
+        for [x, y] in num_tiles:
+            safe_tiles = []
+            print([x, y])
+            shared_count = 0
+            unshared_count = 0
+            for a in range(-1, 2):
+                for b in range(-1, 2):
+                    if (a + x > -1 and a + x < rows) and (
+                        b + y > -1 and b + y < columns
+                    ):
+                        if (
+                            board[x + a][y + b] == undiscovered
+                            and ([x, y] in un_tiles) == False
+                        ):
+                            safe_tiles.append([x + a, y + b])
+                            unshared_count += 1
+                        # elif (
+                        #    board[x + a][y + b] == undiscovered
+                        #    and ([x, y] in un_tiles) == True
+                        # ):
+                        #    shared_count += 1
+                        elif board[x + a][y + b] == mine or board[x + a][y + b] == 12:
+                            unshared_count -= 1
+            if unshared_count == board[x][y]:
+                print([x, y])
+                print(safe_tiles)
+                return safe_tiles
         return []
 
     def solve(self, board):
@@ -92,15 +147,20 @@ class sat_solve:
                 # Create a clause that sets the undiscovered squares to mines
                 if board[i][j] in [1, 2, 3, 4, 5, 6, 7, 8]:
                     clauses.append([self.var(i, j, board[i][j])])
-
+                # Checks surrounding area for mines
                 mines = self.check_mines(board, i, j)
                 if mines != []:
                     for m in mines:
                         clauses.append([self.var(m[0], m[1], 9)])
-
+                # Checks surrounding area for safe area
                 safe = self.check_safe(board, i, j)
                 if safe != []:
                     for s in safe:
+                        clauses.append([self.var(s[0], s[1], 11)])
+
+                advanced_safe = self.advanced_check_safe(board, i, j)
+                if advanced_safe != []:
+                    for s in advanced_safe:
                         clauses.append([self.var(s[0], s[1], 11)])
 
         s = Solver()

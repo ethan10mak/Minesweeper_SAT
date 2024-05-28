@@ -10,6 +10,7 @@ rows = 16
 columns = 30
 total_mines = 99
 dim = rows * columns
+spaces = dim - total_mines
 
 
 def rev_var(n):
@@ -48,6 +49,24 @@ def print_board(board):
                 print(" " + str(j), end="")
         print("")
     return 0
+
+
+def get_spaces_to_win(board, answer):
+    count = 0
+    for i in range(0, rows):
+        for j in range(0, columns):
+            if board[i][j] == 10 and answer[i][j] != 9:
+                count += 1
+    return count
+
+
+def get_mines(board):
+    count = total_mines
+    for i in range(0, rows):
+        for j in range(0, columns):
+            if board[i][j] == 12:
+                count -= 1
+    return count
 
 
 # Generate Mine board function
@@ -147,6 +166,7 @@ def take_turn(answer, current, tile, flag, mines_left):
         current[tile[0]][tile[1]] = answer[tile[0]][tile[1]]
         clear_zeros(board_answer, current_board, tile[0], tile[1])
         if current[tile[0]][tile[1]] == mine:
+            print_board(current)
             print("GAME OVER!!!")
             exit(0)
     return (current_board, mines_left)
@@ -211,4 +231,4 @@ print("Mines Left: " + str(total_mines))
 while True:
     input("Next Move")
     total_mines = solve_current_state(current_board, board_answer, total_mines)
-    print("Mines Left: " + str(total_mines))
+    print("Mines Left: " + str(get_mines(current_board)))
