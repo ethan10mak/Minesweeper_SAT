@@ -8,7 +8,7 @@ import random
 
 rows = 16
 columns = 30
-total_mines = 99
+total_mines = 80
 dim = rows * columns
 spaces = dim - total_mines
 
@@ -158,10 +158,9 @@ def clear_zeros(answer, current, i, j):
 # tile: the tile as [row, column]
 # flag: Boolean, True if flaggin for mine, False if checking square
 # Returns current state of board after tile is flagged or searched
-def take_turn(answer, current, tile, flag, mines_left):
+def take_turn(answer, current, tile, flag):
     if flag:
         current[tile[0]][tile[1]] = 12
-        mines_left = mines_left - 1
     else:
         current[tile[0]][tile[1]] = answer[tile[0]][tile[1]]
         clear_zeros(board_answer, current_board, tile[0], tile[1])
@@ -169,11 +168,11 @@ def take_turn(answer, current, tile, flag, mines_left):
             print_board(current)
             print("GAME OVER!!!")
             exit(0)
-    return (current_board, mines_left)
+    return current_board
 
 
 # solve_current_state
-def solve_current_state(current_board, board_answer, mines_left):
+def solve_current_state(current_board, board_answer):
     [sat, solution] = sat_solve.solve(sat_solve, current_board)
     for i in range(1, len(solution)):
         [a, b, c] = rev_var(i)
@@ -184,18 +183,14 @@ def solve_current_state(current_board, board_answer, mines_left):
         if base > 11:
             decider = 11
         if i % base == decider and solution[i] == True:
-            (current_board, mines_left) = take_turn(
-                board_answer, current_board, [a, b], False, mines_left
-            )
+            current_board = take_turn(board_answer, current_board, [a, b], False)
             clear_zeros(board_answer, current_board, a, b)
         if i % base == 9 and solution[i] == True:
-            (current_board, mines_left) = take_turn(
-                board_answer, current_board, [a, b], True, mines_left
-            )
+            current_board = take_turn(board_answer, current_board, [a, b], True)
     print_board(board_answer)
     print()
     print_board(current_board)
-    return mines_left
+    return 0
 
 
 # States: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
@@ -216,9 +211,8 @@ c = int(input("What is your column?"))
 
 board_answer = mine_board(rows, columns, total_mines, [r, c])
 board_answer = generate_numbers(board_answer, rows, columns)
-(current_board, total_mines) = take_turn(
-    board_answer, current_board, [r, c], False, total_mines
-)
+current_board = take_turn(board_answer, current_board, [r, c], False)
+
 print_board(board_answer)
 print()
 print_board(current_board)
@@ -230,5 +224,5 @@ print("Mines Left: " + str(total_mines))
 #    print_board(current_board)
 while True:
     input("Next Move")
-    total_mines = solve_current_state(current_board, board_answer, total_mines)
+    solve_current_state(current_board, board_answer)
     print("Mines Left: " + str(get_mines(current_board)))

@@ -79,30 +79,32 @@ class sat_solve:
         return []
 
     # Follows 1-1-x pattern
+    # Deals with 50/50 problem
     def advanced_check_safe(board, i, j):
         state = board[i][j]
         un_tiles = []
         num_tiles = []
         count = 0
+        mine_count = 0
         if state == mine or state == undiscovered or state == 12:
             return []
         for a in range(-1, 2):
             for b in range(-1, 2):
                 if (a + i > -1 and a + i < rows) and (b + j > -1 and b + j < columns):
                     if board[i + a][j + b] == mine or board[i + a][j + b] == 12:
-                        count -= 1
-                    elif board[i + a][j + b] == undiscovered:
+                        mine_count += 1
+                    if board[i + a][j + b] == undiscovered:
                         un_tiles.append([i + a, j + b])
                         count += 1
                     else:
                         num_tiles.append([i + a, j + b])
-        if count != 2:
+        if count != 2 and mine_count == (state - 1):
             return []
 
         for [x, y] in num_tiles:
             safe_tiles = []
-            print([x, y])
-            shared_count = 0
+            # print([x, y])
+            mine_count = 0
             unshared_count = 0
             for a in range(-1, 2):
                 for b in range(-1, 2):
@@ -121,8 +123,11 @@ class sat_solve:
                         # ):
                         #    shared_count += 1
                         elif board[x + a][y + b] == mine or board[x + a][y + b] == 12:
-                            unshared_count -= 1
-            if unshared_count == board[x][y]:
+                            mine_count -= 1
+            if unshared_count == board[x][y] and board[x][y] == (mine_count - 1):
+                print("Found Safe")
+                print(count)
+                print(mine_count)
                 print([x, y])
                 print(safe_tiles)
                 return safe_tiles
