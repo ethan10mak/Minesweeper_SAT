@@ -78,6 +78,9 @@ class sat_solve:
             return tiles
         return []
 
+    def advanced_check_mine(board, i, j):
+        return
+
     # Follows 1-1-x pattern
     # Deals with 50/50 problem
     def advanced_check_safe(board, i, j):
@@ -93,19 +96,18 @@ class sat_solve:
                 if (a + i > -1 and a + i < rows) and (b + j > -1 and b + j < columns):
                     if board[i + a][j + b] == mine or board[i + a][j + b] == 12:
                         mine_count += 1
-                    if board[i + a][j + b] == undiscovered:
+                    elif board[i + a][j + b] == undiscovered:
                         un_tiles.append([i + a, j + b])
                         count += 1
                     else:
                         num_tiles.append([i + a, j + b])
-        if count != 2 and mine_count == (state - 1):
+        if count != 2 or mine_count != (state - 1):
             return []
-
         for [x, y] in num_tiles:
             safe_tiles = []
-            # print([x, y])
             mine_count = 0
             unshared_count = 0
+            shared_count = 0
             for a in range(-1, 2):
                 for b in range(-1, 2):
                     if (a + x > -1 and a + x < rows) and (
@@ -113,22 +115,27 @@ class sat_solve:
                     ):
                         if (
                             board[x + a][y + b] == undiscovered
-                            and ([x, y] in un_tiles) == False
+                            and ([x + a, y + b] in un_tiles) == False
                         ):
                             safe_tiles.append([x + a, y + b])
                             unshared_count += 1
-                        # elif (
-                        #    board[x + a][y + b] == undiscovered
-                        #    and ([x, y] in un_tiles) == True
-                        # ):
-                        #    shared_count += 1
+                        elif (
+                            board[x + a][y + b] == undiscovered
+                            and ([x + a, y + b] in un_tiles) == True
+                        ):
+                            shared_count += 1
                         elif board[x + a][y + b] == mine or board[x + a][y + b] == 12:
-                            mine_count -= 1
-            if unshared_count == board[x][y] and board[x][y] == (mine_count - 1):
+                            mine_count += 1
+            if (
+                # unshared_count == board[x][y]
+                board[x][y] - 1 == (mine_count)
+                and shared_count == 2
+            ):
                 print("Found Safe")
-                print(count)
-                print(mine_count)
+                print([i, j])
                 print([x, y])
+
+                print("Safe:")
                 print(safe_tiles)
                 return safe_tiles
         return []
