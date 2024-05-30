@@ -78,8 +78,63 @@ class sat_solve:
             return tiles
         return []
 
+    # Follows 1-2-x pattern
+    # The x is always a mine
     def advanced_check_mine(board, i, j):
-        return
+        state = board[i][j]
+        un_tiles = []
+        num_tiles = []
+        count = 0
+        mine_count = 0
+        if state == mine or state == undiscovered or state == 12:
+            return []
+        for a in range(-1, 2):
+            for b in range(-1, 2):
+                if (a + i > -1 and a + i < rows) and (b + j > -1 and b + j < columns):
+                    if board[i + a][j + b] == mine or board[i + a][j + b] == 12:
+                        mine_count += 1
+                    elif board[i + a][j + b] == undiscovered:
+                        un_tiles.append([i + a, j + b])
+                        count += 1
+                    else:
+                        num_tiles.append([i + a, j + b])
+        if mine_count != (state - 1):
+            return []
+        mine_tiles = []
+        for [x, y] in num_tiles:
+            temp_mine = []
+            mine_count = 0
+            unshared_count = 0
+            shared_count = 0
+            for a in range(-1, 2):
+                for b in range(-1, 2):
+                    if (a + x > -1 and a + x < rows) and (
+                        b + y > -1 and b + y < columns
+                    ):
+                        if (
+                            board[x + a][y + b] == undiscovered
+                            and ([x + a, y + b] in un_tiles) == False
+                        ):
+                            temp_mine.append([x + a, y + b])
+                            unshared_count += 1
+                        elif (
+                            board[x + a][y + b] == undiscovered
+                            and ([x + a, y + b] in un_tiles) == True
+                        ):
+                            shared_count += 1
+                        elif board[x + a][y + b] == mine or board[x + a][y + b] == 12:
+                            mine_count += 1
+            if (
+                # board[x][y] - 1 == (mine_count)
+                board[x][y] == mine_count + unshared_count + 1
+                and shared_count == 2
+            ):
+                print("Mine:")
+                print([i, j])
+                print([x, y])
+                print(temp_mine)
+                mine_tiles = mine_tiles + temp_mine
+        return mine_tiles
 
     # Follows 1-1-x pattern
     # Deals with 50/50 problem
@@ -103,8 +158,9 @@ class sat_solve:
                         num_tiles.append([i + a, j + b])
         if count != 2 or mine_count != (state - 1):
             return []
+        safe_tiles = []
         for [x, y] in num_tiles:
-            safe_tiles = []
+            temp_safe = []
             mine_count = 0
             unshared_count = 0
             shared_count = 0
@@ -117,7 +173,7 @@ class sat_solve:
                             board[x + a][y + b] == undiscovered
                             and ([x + a, y + b] in un_tiles) == False
                         ):
-                            safe_tiles.append([x + a, y + b])
+                            temp_safe.append([x + a, y + b])
                             unshared_count += 1
                         elif (
                             board[x + a][y + b] == undiscovered
@@ -136,9 +192,9 @@ class sat_solve:
                 print([x, y])
 
                 print("Safe:")
-                print(safe_tiles)
-                return safe_tiles
-        return []
+                print(temp_safe)
+                safe_tiles = safe_tiles + temp_safe
+        return safe_tiles
 
     def solve(self, board):
         # k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -169,6 +225,11 @@ class sat_solve:
                 if safe != []:
                     for s in safe:
                         clauses.append([self.var(s[0], s[1], 11)])
+
+                advanced_mine = self.advanced_check_mine(board, i, j)
+                if advanced_mine != []:
+                    for m in advanced_mine:
+                        clauses.append([self.var(m[0], m[1], 9)])
 
                 advanced_safe = self.advanced_check_safe(board, i, j)
                 if advanced_safe != []:
