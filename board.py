@@ -3,12 +3,15 @@
 # Installed pycryptosat
 # Run line pip install pycryptosat
 import numpy as np
-from sat_solver import sat_solve
 import random
+
+from sat_solver import sat_solve
+from guess import guesser
+
 
 rows = 16
 columns = 30
-total_mines = 85
+total_mines = 99
 dim = rows * columns
 spaces = dim - total_mines
 
@@ -173,6 +176,12 @@ def take_turn(answer, current, tile, flag):
 
 # solve_current_state
 def solve_current_state(current_board, board_answer):
+    prev_board = []
+    for i in current_board:
+        temp = []
+        for j in i:
+            temp.append(j)
+        prev_board.append(temp)
     [sat, solution] = sat_solve.solve(sat_solve, current_board)
     for i in range(1, len(solution)):
         [a, b, c] = rev_var(i)
@@ -188,7 +197,13 @@ def solve_current_state(current_board, board_answer):
         if i % base == 9 and solution[i] == True:
             current_board = take_turn(board_answer, current_board, [a, b], True)
     print_board(current_board)
-    return 0
+    # changed = False
+    for i in range(0, rows):
+        for j in range(0, columns):
+            if prev_board[i][j] != current_board[i][j]:
+                return True
+    print("YES")
+    return False
 
 
 # States: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
@@ -222,5 +237,11 @@ print("Mines Left: " + str(total_mines))
 #    print_board(current_board)
 while True:
     input("Next Move")
-    solve_current_state(current_board, board_answer)
+    changed = solve_current_state(current_board, board_answer)
     print("Mines Left: " + str(get_mines(current_board)))
+    if changed == False:
+        comb = guesser.guess_safe(current_board, get_mines(current_board))
+        print("Changed")
+        for i in list(comb):
+            print(i)
+        exit(0)

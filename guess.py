@@ -1,5 +1,9 @@
 # Guessing algorithm that determines the chances of a tile being safe.
 
+from itertools import combinations
+import math
+
+
 rows = 16
 columns = 30
 dim = rows * columns
@@ -19,5 +23,15 @@ class guesser:
 
     # Finds a list of the safest tiles on the current board
     def guess_safe(board, mines):
+        undis_tiles = []
+        for i in range(0, rows):
+            for j in range(0, columns):
+                if board[i][j] == undiscovered:
+                    undis_tiles.append([i, j])
+        print("HI")
+        math.comb(len(undis_tiles), mines)
 
-        return 0
+        # for i in
+        # Print the obtained combinations
+
+        return comb
