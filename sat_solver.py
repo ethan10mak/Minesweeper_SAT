@@ -11,7 +11,6 @@ mine = 9
 undiscovered = 10
 safe = 11
 flag = 12
-chance = 13
 
 k_values = [1, 2, 3, 4, 5, 6, 7, 8, mine, undiscovered, safe]
 
@@ -129,10 +128,6 @@ class sat_solve:
                 board[x][y] == mine_count + unshared_count + 1
                 and shared_count == 2
             ):
-                print("Mine:")
-                print([i, j])
-                print([x, y])
-                print(temp_mine)
                 mine_tiles = mine_tiles + temp_mine
         return mine_tiles
 
@@ -187,12 +182,6 @@ class sat_solve:
                 board[x][y] - 1 == (mine_count)
                 and shared_count == 2
             ):
-                print("Found Safe")
-                print([i, j])
-                print([x, y])
-
-                print("Safe:")
-                print(temp_safe)
                 safe_tiles = safe_tiles + temp_safe
         return safe_tiles
 
@@ -240,6 +229,4 @@ class sat_solve:
         for clause in clauses:
             s.add_clause(clause)
         sat, solution = s.solve()
-        # print(sat)
-        # print(solution)
         return [sat, solution]

@@ -8,7 +8,7 @@ import random
 
 rows = 16
 columns = 30
-total_mines = 80
+total_mines = 85
 dim = rows * columns
 spaces = dim - total_mines
 
@@ -187,8 +187,6 @@ def solve_current_state(current_board, board_answer):
             clear_zeros(board_answer, current_board, a, b)
         if i % base == 9 and solution[i] == True:
             current_board = take_turn(board_answer, current_board, [a, b], True)
-    print_board(board_answer)
-    print()
     print_board(current_board)
     return 0
 
