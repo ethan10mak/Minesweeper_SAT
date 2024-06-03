@@ -1,6 +1,8 @@
-# TEST FILE
-test = [[1, 1]]
-if ([1, 1] in test) == False:
-    print("Yes")
-else:
-    print("No")
+from itertools import combinations
+
+perm = combinations([[1, 2], [2, 3], [1, 1]], 2)
+
+# Print the obtained permutations
+
+for i in list(perm):
+    print(i)

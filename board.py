@@ -171,6 +171,10 @@ def take_turn(answer, current, tile, flag):
             print_board(current)
             print("GAME OVER!!!")
             exit(0)
+        if get_spaces_to_win(current_board, board_answer) == 0:
+            print_board(current)
+            print("You win!!")
+            exit(0)
     return current_board
 
 
@@ -240,8 +244,8 @@ while True:
     changed = solve_current_state(current_board, board_answer)
     print("Mines Left: " + str(get_mines(current_board)))
     if changed == False:
-        comb = guesser.guess_safe(current_board, get_mines(current_board))
+        comb = guesser.guess_safe(guesser, current_board, get_mines(current_board))
         print("Changed")
-        for i in list(comb):
-            print(i)
-        exit(0)
+        take_turn(board_answer, current_board, comb[0], False)
+        changed = solve_current_state(current_board, board_answer)
+        print("Mines Left: " + str(get_mines(current_board)))
