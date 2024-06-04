@@ -64,10 +64,39 @@ class guesser:
                     tiles = old_tiles
         return tiles
 
-    def most_frequent(l):
-        occurence_count = Counter(l)
-        print(occurence_count)
-        return occurence_count.most_common(1)[0][0]
+    def var(i, j):
+        if columns < 11:
+            return (i * 11 * 11) + (j * 11) + 10
+        else:
+            return (i * columns * columns) + (j * columns) + 10
+
+    def rev_var(n):
+        i = 0
+        j = 0
+        div_i = 11 * 11
+        div_j = 11
+        if columns > 11:
+            div_i = columns * columns
+            div_j = columns
+        if n > div_i:
+            i = (n - 1) // div_i
+            n = n - (i * div_i)
+        if n > div_j:
+            j = (n - 1) // (div_j)
+            n = n - (j * div_j)
+        return [i, j]
+
+    # Takes in a list of list of possible mines and returns the safest areas
+    def least_frequent(self, l):
+        count = dict()
+        for i in l:
+            for j in i:
+                value = self.var(j[0], j[1])
+                if value in count.keys():
+                    count[value] = count[value] + 1
+                else:
+                    count.update({value: 1})
+        return count
 
     # Finds a list of the safest tiles on the current board
     def guess_safe(self, board, mines):
@@ -76,7 +105,7 @@ class guesser:
             for j in range(0, columns):
                 if board[i][j] == undiscovered:
                     undis_tiles.append([i, j])
-        print("HI")
+        print("Guessing")
         all = []
         start_i = -1
         start_j = -1
@@ -84,26 +113,19 @@ class guesser:
             for j in range(0, columns):
                 comb = self.all_combinations(self, board, [], mines, start_i, start_j)
                 if comb != []:
-                    print("Another:")
-                    print([comb[0][0], comb[0][1]])
+                    # print("Another:")
+                    # print([comb[0][0], comb[0][1]])
                     start_i = comb[0][0]
                     start_j = comb[0][1]
                     all.append(comb)
-        print(mines)
-        print("Result:")
-
-        print(all)
-        all = all[0]
-        # for i in comb:
-        #    print("Check")
-        #    if self.check_board(board, i) == True:
-        #        possible_mines.append(i)
-        # return self.most_frequent(possible_mines)
-
-        # Print the obtained combinations
-
-        for i in range(0, rows):
-            for j in range(0, columns):
-                if board[i][j] == undiscovered and ([i, j] in all == False):
-                    undis_tiles.append([i, j])
-        return all
+        frequency = self.least_frequent(self, all)
+        safest = -1
+        current = -1
+        for i in frequency.keys():
+            if current == -1:
+                current = frequency[i]
+                safest = i
+            if frequency[i] < safest:
+                current = frequency[i]
+                safest = i
+        return self.rev_var(safest)

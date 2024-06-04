@@ -15,6 +15,11 @@ total_mines = 99
 dim = rows * columns
 spaces = dim - total_mines
 
+mine = 9
+undiscovered = 10
+safe = 11
+flag = 12
+
 
 def rev_var(n):
     i = 0
@@ -61,6 +66,14 @@ def get_spaces_to_win(board, answer):
             if board[i][j] == 10 and answer[i][j] != 9:
                 count += 1
     return count
+
+
+def get_mine_triggered(board):
+    for i in range(0, rows):
+        for j in range(0, columns):
+            if board[i][j] == 9:
+                return True
+    return False
 
 
 def get_mines(board):
@@ -156,6 +169,15 @@ def clear_zeros(answer, current, i, j):
     return current
 
 
+# Returns the current state of the game
+def game_state(current, answer):
+    if get_mine_triggered(current) == True:
+        return "Lose"
+    elif get_spaces_to_win(current, answer) == 0:
+        return "Win"
+    return "Play"
+
+
 # answer: the board answer with all revealed squares
 # current: the current state of the board (what the player sees)
 # tile: the tile as [row, column]
@@ -166,16 +188,23 @@ def take_turn(answer, current, tile, flag):
         current[tile[0]][tile[1]] = 12
     else:
         current[tile[0]][tile[1]] = answer[tile[0]][tile[1]]
-        clear_zeros(board_answer, current_board, tile[0], tile[1])
+        clear_zeros(answer, current, tile[0], tile[1])
         if current[tile[0]][tile[1]] == mine:
+            mine_triggered = True
             print_board(current)
+            print("Mines Left: " + str(get_mines(current)))
             print("GAME OVER!!!")
-            exit(0)
-        if get_spaces_to_win(current_board, board_answer) == 0:
+            return current
+            # exit(0)
+        if get_spaces_to_win(current, answer) == 0:
             print_board(current)
+            print("Mines Left: " + str(get_mines(current)))
             print("You win!!")
-            exit(0)
-    return current_board
+            return current
+            # exit(0)
+    print_board(current)
+    print("Mines Left: " + str(get_mines(current)))
+    return current
 
 
 # solve_current_state
@@ -200,52 +229,69 @@ def solve_current_state(current_board, board_answer):
             clear_zeros(board_answer, current_board, a, b)
         if i % base == 9 and solution[i] == True:
             current_board = take_turn(board_answer, current_board, [a, b], True)
-    print_board(current_board)
+        state = game_state(current_board, board_answer)
+        if state == "Win" or state == "Lose":
+            return True
     # changed = False
     for i in range(0, rows):
         for j in range(0, columns):
             if prev_board[i][j] != current_board[i][j]:
                 return True
-    print("YES")
     return False
 
 
-# States: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-# 0 = No mines next to it
-# 9 = mine
-# 10 = Not Discovered
+class board:
+    def __init__(self):
+        self.rows = 11
+        self.columns = 11
+        self.dim = self.rows * self.columns
+        self.mine = 9
+        self.k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-mine = 9
-undiscovered = 10
-safe = 11
-flag = 12
+    def play(r, c, fast):
+        # States: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+        # 0 = No mines next to it
+        # 9 = mine
+        # 10 = Not Discovered
 
+        current_board = create_empty_board(rows, columns)
+        print_board(current_board)
+        # r = int(input("What is your row?"))
+        # c = int(input("What is your column?"))
 
-current_board = create_empty_board(rows, columns)
-print_board(current_board)
-r = int(input("What is your row?"))
-c = int(input("What is your column?"))
-
-board_answer = mine_board(rows, columns, total_mines, [r, c])
-board_answer = generate_numbers(board_answer, rows, columns)
-current_board = take_turn(board_answer, current_board, [r, c], False)
-
-print_board(board_answer)
-print()
-print_board(current_board)
-print("Mines Left: " + str(total_mines))
-# while True:
-#    r = int(input("What is your row?"))
-#    c = int(input("What is your column?"))
-#    current_board = take_turn(board_answer, current_board, [r, c], False)
-#    print_board(current_board)
-while True:
-    input("Next Move")
-    changed = solve_current_state(current_board, board_answer)
-    print("Mines Left: " + str(get_mines(current_board)))
-    if changed == False:
-        comb = guesser.guess_safe(guesser, current_board, get_mines(current_board))
-        print("Changed")
-        take_turn(board_answer, current_board, comb[0], False)
-        changed = solve_current_state(current_board, board_answer)
-        print("Mines Left: " + str(get_mines(current_board)))
+        board_answer = mine_board(rows, columns, total_mines, [r, c])
+        board_answer = generate_numbers(board_answer, rows, columns)
+        current_board = take_turn(board_answer, current_board, [r, c], False)
+        # while True:
+        #    r = int(input("What is your row?"))
+        #    c = int(input("What is your column?"))
+        #    current_board = take_turn(board_answer, current_board, [r, c], False)
+        #    print_board(current_board)
+        while True:
+            if fast == False:
+                input("Next Move")
+            changed = solve_current_state(current_board, board_answer)
+            state = game_state(current_board, board_answer)
+            if state == "Win":
+                print("This one")
+                return "Win"
+            elif state == "Lose":
+                return "Lose"
+            # If the SAT solver stagnates
+            if changed == False:
+                comb = guesser.guess_safe(
+                    guesser, current_board, get_mines(current_board)
+                )
+                print("Changed")
+                take_turn(board_answer, current_board, comb, False)
+                state = game_state(current_board, board_answer)
+                if state == "Win":
+                    return "Win"
+                elif state == "Lose":
+                    return "Lose"
+                changed = solve_current_state(current_board, board_answer)
+                state = game_state(current_board, board_answer)
+                if state == "Win":
+                    return "Win"
+                elif state == "Lose":
+                    return "Lose"
