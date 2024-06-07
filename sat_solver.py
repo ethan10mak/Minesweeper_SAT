@@ -185,7 +185,16 @@ class sat_solve:
                 safe_tiles = safe_tiles + temp_safe
         return safe_tiles
 
-    def solve(self, board):
+    def mines_left_check(board, mines):
+        safe_tiles = []
+        if mines == 0:
+            for i in range(0, rows):
+                for j in range(0, columns):
+                    if board[i][j] == 10:
+                        safe_tiles.append([i, j])
+        return safe_tiles
+
+    def solve(self, board, mines_left):
         # k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         clauses = []
         for i in range(0, rows):
@@ -223,6 +232,11 @@ class sat_solve:
                 advanced_safe = self.advanced_check_safe(board, i, j)
                 if advanced_safe != []:
                     for s in advanced_safe:
+                        clauses.append([self.var(s[0], s[1], 11)])
+
+                un_safe = self.mines_left_check(board, mines_left)
+                if un_safe != []:
+                    for s in un_safe:
                         clauses.append([self.var(s[0], s[1], 11)])
 
         s = Solver()

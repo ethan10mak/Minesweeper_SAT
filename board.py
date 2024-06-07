@@ -59,23 +59,6 @@ def print_board(board):
     return 0
 
 
-def get_spaces_to_win(board, answer):
-    count = 0
-    for i in range(0, rows):
-        for j in range(0, columns):
-            if board[i][j] == 10 and answer[i][j] != 9:
-                count += 1
-    return count
-
-
-def get_mine_triggered(board):
-    for i in range(0, rows):
-        for j in range(0, columns):
-            if board[i][j] == 9:
-                return True
-    return False
-
-
 def get_mines(board):
     count = total_mines
     for i in range(0, rows):
@@ -169,11 +152,33 @@ def clear_zeros(answer, current, i, j):
     return current
 
 
+def get_spaces_to_win(board, answer):
+    count = 0
+    for i in range(0, rows):
+        for j in range(0, columns):
+            if board[i][j] == 10 and answer[i][j] != 9:
+                count += 1
+    return count
+
+
+def get_mine_triggered(board):
+    for i in range(0, rows):
+        for j in range(0, columns):
+            if board[i][j] == 9:
+                return True
+    return False
+
+
 # Returns the current state of the game
 def game_state(current, answer):
-    if get_mine_triggered(current) == True:
-        return "Lose"
-    elif get_spaces_to_win(current, answer) == 0:
+    count = 0
+    for i in range(0, rows):
+        for j in range(0, columns):
+            if current[i][j] == 9:
+                return "Lose"
+            elif current[i][j] == 10 and answer[i][j] != 9:
+                count += 1
+    if count == 0:
         return "Win"
     return "Play"
 
@@ -208,14 +213,14 @@ def take_turn(answer, current, tile, flag):
 
 
 # solve_current_state
-def solve_current_state(current_board, board_answer):
+def solve_current_state(current_board, board_answer, mines):
     prev_board = []
     for i in current_board:
         temp = []
         for j in i:
             temp.append(j)
         prev_board.append(temp)
-    [sat, solution] = sat_solve.solve(sat_solve, current_board)
+    [sat, solution] = sat_solve.solve(sat_solve, current_board, mines)
     for i in range(1, len(solution)):
         [a, b, c] = rev_var(i)
         base = 11
@@ -270,10 +275,11 @@ class board:
         while True:
             if fast == False:
                 input("Next Move")
-            changed = solve_current_state(current_board, board_answer)
+            changed = solve_current_state(
+                current_board, board_answer, get_mines(current_board)
+            )
             state = game_state(current_board, board_answer)
             if state == "Win":
-                print("This one")
                 return "Win"
             elif state == "Lose":
                 return "Lose"
@@ -282,14 +288,16 @@ class board:
                 comb = guesser.guess_safe(
                     guesser, current_board, get_mines(current_board)
                 )
-                print("Changed")
+                print("Unchanged")
                 take_turn(board_answer, current_board, comb, False)
                 state = game_state(current_board, board_answer)
                 if state == "Win":
                     return "Win"
                 elif state == "Lose":
                     return "Lose"
-                changed = solve_current_state(current_board, board_answer)
+                changed = solve_current_state(
+                    current_board, board_answer, get_mines(current_board)
+                )
                 state = game_state(current_board, board_answer)
                 if state == "Win":
                     return "Win"
