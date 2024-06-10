@@ -197,6 +197,7 @@ def take_turn(answer, current, tile, flag):
         if current[tile[0]][tile[1]] == mine:
             mine_triggered = True
             print_board(current)
+            print_board(answer)
             print("Mines Left: " + str(get_mines(current)))
             print("GAME OVER!!!")
             return current

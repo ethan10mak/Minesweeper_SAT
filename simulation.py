@@ -17,9 +17,24 @@ def run_multiple(n):
 
 # board.play(8, 15, True)
 
-result = run_multiple(10)
+result = run_multiple(1)
 print("Win:")
 print(result[0])
 
 print("Lose:")
 print(result[1])
+
+# 2
+# 8
+
+# 2
+# 8
+
+# 5
+# 5
+
+# 3
+# 7
+
+# 20
+# 80
