@@ -2,7 +2,7 @@
 
 from itertools import combinations
 from collections import Counter
-import math
+import random
 
 rows = 16
 columns = 30
@@ -172,6 +172,9 @@ class guesser:
         print(all)
         """
         frequency = self.freq(self, board)
+        if frequency == []:
+            random.seed()
+            random.randrange(0, len(undis_tiles))
         print(frequency)
         # frequency = self.least_frequent(self, all)
         safest = -1

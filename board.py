@@ -69,39 +69,116 @@ def get_mines(board):
 
 
 # Generate Mine board function
-def mine_board(r, c, n, first):
-    random.seed()
-    mines = []
-    for x in range(0, n):
-        check = True
-        i = -1
-        j = -1
-        while check == True:
-            check = False
-            i = random.randint(0, r - 1)
-            j = random.randint(0, c - 1)
-            if [i, j] == first or [i, j] in mines:
-                check = True
-            for a in range(-1, 2):
-                for b in range(-1, 2):
-                    if (a + first[0] > -1 and a + first[0] < rows) and (
-                        b + first[1] > -1 and b + first[1] < columns
-                    ):
-                        if first[0] + a == i and first[1] + b == j:
+def mine_board(r, c, n, first, setup):
+    if setup == -1:
+        random.seed()
+        mines = []
+        for x in range(0, n):
+            check = True
+            i = -1
+            j = -1
+            while check == True:
+                check = False
+                i = random.randint(0, r - 1)
+                j = random.randint(0, c - 1)
+                if [i, j] == first or [i, j] in mines:
+                    check = True
+                for a in range(-1, 2):
+                    for b in range(-1, 2):
+                        if (a + first[0] > -1 and a + first[0] < rows) and (
+                            b + first[1] > -1 and b + first[1] < columns
+                        ):
+                            if first[0] + a == i and first[1] + b == j:
+                                check = True
+            mines.append([i, j])
+
+        board = []
+        for i in range(0, r):
+            temp_list = []
+            for j in range(0, c):
+                if [i, j] in mines:
+                    temp_list.append(9)
+                else:
+                    temp_list.append(10)
+            board.append(temp_list)
+
+        return board
+
+    else:
+        random.seed()
+        mines = []
+        x = 0
+        while x < n:
+            x += 1
+            print(x)
+            check = True
+            i = -1
+            j = -1
+            step = 20
+            while check == True:
+                check = False
+                i = random.randint(0, r - 1)
+                j = random.randint(0, c - 1)
+                if [i, j] == first or [i, j] in mines:
+                    check = True
+                for a in range(-1, 2):
+                    for b in range(-1, 2):
+                        if (a + first[0] > -1 and a + first[0] < rows) and (
+                            b + first[1] > -1 and b + first[1] < columns
+                        ):
+                            if first[0] + a == i and first[1] + b == j:
+                                check = True
+                if check != True:
+
+                    if x == n:
+
+                        answer = []
+                        for y in range(0, r):
+                            temp_list = []
+                            for z in range(0, c):
+                                if [y, z] in mines or [y, z] == [i, j]:
+                                    temp_list.append(9)
+                                else:
+                                    temp_list.append(10)
+                            answer.append(temp_list)
+                        answer = generate_numbers(answer, r, c)
+                        # print_board(answer)
+                        current_board = create_empty_board(rows, columns)
+                        # print_board(current_board)
+                        take_turn(answer, current_board, [first[0], first[1]], False)
+                        # print_board(current_board)
+                        changed = True
+                        while changed == True:
+                            changed = solve_current_state(
+                                current_board, answer, get_mines(current_board)
+                            )
+                            state = game_state(current_board, answer)
+                            print_board(current_board)
+                            print("Mines Left: " + str(get_mines(current_board)))
+                            if state == "Win":
+                                print("OK")
+
+                                break
+                        if changed == False:
+                            print_board(answer)
                             check = True
-        mines.append([i, j])
+                            for mine in mines:
+                                if current_board[mine[0]][mine[1]] == undiscovered:
+                                    mines.remove(mine)
+                                    x -= 1
+            mines.append([i, j])
 
-    board = []
-    for i in range(0, r):
-        temp_list = []
-        for j in range(0, c):
-            if [i, j] in mines:
-                temp_list.append(9)
-            else:
-                temp_list.append(10)
-        board.append(temp_list)
-
-    return board
+        board = []
+        for i in range(0, r):
+            temp_list = []
+            for j in range(0, c):
+                if [i, j] in mines:
+                    temp_list.append(9)
+                else:
+                    temp_list.append(10)
+            board.append(temp_list)
+        print("Done generating")
+        return board
 
 
 def create_empty_board(r, c):
@@ -196,20 +273,19 @@ def take_turn(answer, current, tile, flag):
         clear_zeros(answer, current, tile[0], tile[1])
         if current[tile[0]][tile[1]] == mine:
             mine_triggered = True
-            print_board(current)
-            print_board(answer)
-            print("Mines Left: " + str(get_mines(current)))
-            print("GAME OVER!!!")
+            # print_board(current)
+            # print_board(answer)
+            # print("Mines Left: " + str(get_mines(current)))
+            # print("GAME OVER!!!")
             return current
             # exit(0)
         if get_spaces_to_win(current, answer) == 0:
-            print_board(current)
-            print("Mines Left: " + str(get_mines(current)))
-            print("You win!!")
+            # print_board(current)
+            # print("Mines Left: " + str(get_mines(current)))
+            # print("You win!!")
             return current
             # exit(0)
-    print_board(current)
-    print("Mines Left: " + str(get_mines(current)))
+
     return current
 
 
@@ -254,7 +330,7 @@ class board:
         self.mine = 9
         self.k_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-    def play(r, c, fast):
+    def play(r, c, fast, setup):
         # States: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
         # 0 = No mines next to it
         # 9 = mine
@@ -265,7 +341,7 @@ class board:
         # r = int(input("What is your row?"))
         # c = int(input("What is your column?"))
 
-        board_answer = mine_board(rows, columns, total_mines, [r, c])
+        board_answer = mine_board(rows, columns, total_mines, [r, c], setup)
         board_answer = generate_numbers(board_answer, rows, columns)
         current_board = take_turn(board_answer, current_board, [r, c], False)
         # while True:
@@ -279,10 +355,19 @@ class board:
             changed = solve_current_state(
                 current_board, board_answer, get_mines(current_board)
             )
+            print_board(current_board)
+            print("Mines Left: " + str(get_mines(current_board)))
             state = game_state(current_board, board_answer)
             if state == "Win":
+                print_board(board_answer)
+                print("Mines Left: " + str(get_mines(current_board)))
+                print("You win!!")
                 return "Win"
             elif state == "Lose":
+                print_board(current_board)
+                print_board(board_answer)
+                print("Mines Left: " + str(get_mines(current_board)))
+                print("GAME OVER!!!")
                 return "Lose"
             # If the SAT solver stagnates
             if changed == False:
@@ -293,9 +378,19 @@ class board:
                 take_turn(board_answer, current_board, comb, False)
                 state = game_state(current_board, board_answer)
                 if state == "Win":
+                    print_board(board_answer)
+                    print("Mines Left: " + str(get_mines(current_board)))
+                    print("You win!!")
                     return "Win"
                 elif state == "Lose":
+                    print_board(current_board)
+                    print_board(board_answer)
+                    print("Mines Left: " + str(get_mines(current_board)))
+                    print("GAME OVER!!!")
                     return "Lose"
+                print_board(current_board)
+                print("Mines Left: " + str(get_mines(current_board)))
+                """
                 changed = solve_current_state(
                     current_board, board_answer, get_mines(current_board)
                 )
@@ -304,3 +399,4 @@ class board:
                     return "Win"
                 elif state == "Lose":
                     return "Lose"
+                """

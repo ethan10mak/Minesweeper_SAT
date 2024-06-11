@@ -192,6 +192,31 @@ class sat_solve:
                 for j in range(0, columns):
                     if board[i][j] == 10:
                         safe_tiles.append([i, j])
+        elif mines == 1:
+            possible_mine = []
+            for i in range(0, rows):
+                for j in range(0, columns):
+                    if board[i][j] == 10:
+                        safe_tiles.append([i, j])
+                        check = False
+                        for a in range(-1, 2):
+                            for b in range(-1, 2):
+                                if (a + i > -1 and a + i < rows) and (
+                                    b + j > -1 and b + j < columns
+                                ):
+                                    if (
+                                        board[a + i][b + j] in [1, 2, 3, 4, 5, 6, 7, 8]
+                                        and board[a + i][b + j]
+                                        in possible_mine
+                                        == False
+                                    ):
+                                        possible_mine.append([i, j])
+                                        check = True
+                        if check == True:
+                            safe_tiles.remove([i, j])
+            if possible_mine != []:
+                return safe_tiles
+            return []
         return safe_tiles
 
     def solve(self, board, mines_left):
