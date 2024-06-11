@@ -7,7 +7,7 @@ def run_multiple(n):
     win = 0
     lose = 0
     for i in range(0, n):
-        result = board.play(8, 15, True, 0)
+        result = board.play(8, 15, True, -1)
         if result == "Win":
             win += 1
         else:
@@ -17,7 +17,7 @@ def run_multiple(n):
 
 # board.play(8, 15, True)
 
-result = run_multiple(10)
+result = run_multiple(50)
 print("Win:")
 print(result[0])
 

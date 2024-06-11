@@ -174,7 +174,7 @@ class guesser:
         frequency = self.freq(self, board)
         if frequency == []:
             random.seed()
-            random.randrange(0, len(undis_tiles))
+            return undis_tiles[random.randint(0, len(undis_tiles) - 1)]
         print(frequency)
         # frequency = self.least_frequent(self, all)
         safest = -1
@@ -186,9 +186,19 @@ class guesser:
             if current == -1:
                 current = frequency[i]
                 safest = i
-            if frequency[i] < safest:
+            if frequency[i] < current:
                 current = frequency[i]
                 safest = i
+        lowest_list = []
+        # print(self.rev_var(safest))
+        # lowest_list.append(safest)
+        for i in frequency.keys():
+            # print(frequency[i])
+            if current == frequency[i]:
+                print(self.rev_var(i))
+                lowest_list.append(i)
+        random.seed()
+        safest = lowest_list[random.randint(0, len(lowest_list) - 1)]
         print(self.rev_var(safest))
         print(current)
         return self.rev_var(safest)

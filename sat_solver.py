@@ -236,7 +236,7 @@ class sat_solve:
             for j in range(0, columns):
                 # If the state number equals the number of undiscovered squares next to it,
                 # Create a clause that sets the undiscovered squares to mines
-                if board[i][j] in [1, 2, 3, 4, 5, 6, 7, 8]:
+                if board[i][j] in [1, 2, 3, 4, 5, 6, 7, 8, 12]:
                     clauses.append([self.var(i, j, board[i][j])])
                 # Checks surrounding area for mines
                 mines = self.check_mines(board, i, j)
