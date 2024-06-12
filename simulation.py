@@ -13,7 +13,7 @@ def run_multiple(n):
             win += 1
         else:
             lose += 1
-    print([win, lose])
+        print([win, lose])
     return [win, lose]
 
 
@@ -25,17 +25,17 @@ start = time.time()
 
 # Calculate the end time and time taken
 
-result = run_multiple(50)
-print("Win:")
-print(result[0])
+result = run_multiple(10)
+# print("Win:")
+# print(result[0])
 
-print("Lose:")
-print(result[1])
+# print("Lose:")
+# print(result[1])
 end = time.time()
 length = end - start
 
-print("Time:")
-print(length)
+# print("Time:")
+# print(length)
 
 # 2
 # 8

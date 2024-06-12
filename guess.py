@@ -85,12 +85,10 @@ class guesser:
             for j in range(0, columns):
                 if board[i][j] == undiscovered:
                     undis_tiles.append([i, j])
-        print("Guessing")
         frequency = self.freq(self, board)
         if frequency == {}:
             random.seed()
             return undis_tiles[random.randint(0, len(undis_tiles) - 1)]
-        print(frequency)
         safest = -1
         current = -1
         for i in frequency.keys():
@@ -107,6 +105,4 @@ class guesser:
                 lowest_list.append(i)
         random.seed()
         safest = lowest_list[random.randint(0, len(lowest_list) - 1)]
-        print(self.rev_var(safest))
-        print(current)
         return self.rev_var(safest)

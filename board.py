@@ -118,7 +118,6 @@ def mine_board(r, c, n, first, setup):
         x = 0
         while x < n:
             x += 1
-            print(x)
             check = True
             i = -1
             j = -1
@@ -150,7 +149,6 @@ def mine_board(r, c, n, first, setup):
                                     temp_list.append(10)
                             answer.append(temp_list)
                         answer = generate_numbers(answer, r, c)
-                        print_board(answer)
                         current_board = create_empty_board(rows, columns)
                         take_turn(answer, current_board, [first[0], first[1]], False)
                         if old_board != []:
@@ -189,53 +187,62 @@ def mine_board(r, c, n, first, setup):
                             print("Mines Left: " + str(get_mines(current_board)))
                             if state == "Win":
                                 print("OK")
-                                break
+                                if setup == 1:
+                                    for mine in mines:
+                                        mines.remove(mine)
+                                        x -= 1
+                                else:
+                                    break
                         if changed == False:
-                            old_board = []
-                            for y in range(0, rows):
-                                temp_list = []
-                                for z in range(0, columns):
-                                    temp_list.append(current_board[y][z])
-                                old_board.append(temp_list)
-                            # print_board(answer)
-                            check = True
-                            for mine in mines:
-                                removed = False
-                                for a in range(-1, 2):
-                                    for b in range(-1, 2):
-                                        if (
-                                            a + mine[0] > -1 and a + mine[0] < rows
-                                        ) and (
-                                            b + mine[1] > -1
-                                            and b + mine[1] < columns
-                                            and (a != 0 or b != 0)
-                                        ):
+                            # Needs to be a guess
+                            if setup == 1:
+                                return answer
+                            else:
+                                old_board = []
+                                for y in range(0, rows):
+                                    temp_list = []
+                                    for z in range(0, columns):
+                                        temp_list.append(current_board[y][z])
+                                    old_board.append(temp_list)
+                                # print_board(answer)
+                                check = True
+                                for mine in mines:
+                                    removed = False
+                                    for a in range(-1, 2):
+                                        for b in range(-1, 2):
                                             if (
-                                                removed == False
-                                                and current_board[mine[0]][mine[1]]
-                                                == undiscovered
-                                                and (
-                                                    current_board[mine[0] + a][
-                                                        mine[1] + b
-                                                    ]
-                                                )
-                                                in [
-                                                    1,
-                                                    2,
-                                                    3,
-                                                    4,
-                                                    5,
-                                                    6,
-                                                    7,
-                                                    8,
-                                                ]
+                                                a + mine[0] > -1 and a + mine[0] < rows
+                                            ) and (
+                                                b + mine[1] > -1
+                                                and b + mine[1] < columns
+                                                and (a != 0 or b != 0)
                                             ):
+                                                if (
+                                                    removed == False
+                                                    and current_board[mine[0]][mine[1]]
+                                                    == undiscovered
+                                                    and (
+                                                        current_board[mine[0] + a][
+                                                            mine[1] + b
+                                                        ]
+                                                    )
+                                                    in [
+                                                        1,
+                                                        2,
+                                                        3,
+                                                        4,
+                                                        5,
+                                                        6,
+                                                        7,
+                                                        8,
+                                                    ]
+                                                ):
 
-                                                mines.remove(mine)
-                                                x -= 1
-                                                removed = True
+                                                    mines.remove(mine)
+                                                    x -= 1
+                                                    removed = True
+
             mines.append([i, j])
-
         board = []
         for i in range(0, r):
             temp_list = []
@@ -245,7 +252,6 @@ def mine_board(r, c, n, first, setup):
                 else:
                     temp_list.append(10)
             board.append(temp_list)
-        print("Done generating")
         return board
 
 
@@ -366,7 +372,6 @@ def solve_current_state(current_board, board_answer, mines):
             temp.append(j)
         prev_board.append(temp)
     [sat, solution] = sat_solve.solve(sat_solve, current_board, mines)
-    # print(sat)
     for i in range(1, len(solution)):
         [a, b, c] = rev_var(i)
         base = 11
@@ -459,13 +464,3 @@ class board:
                     return "Lose"
                 print_board(current_board)
                 print("Mines Left: " + str(get_mines(current_board)))
-                """
-                changed = solve_current_state(
-                    current_board, board_answer, get_mines(current_board)
-                )
-                state = game_state(current_board, board_answer)
-                if state == "Win":
-                    return "Win"
-                elif state == "Lose":
-                    return "Lose"
-                """
