@@ -36,7 +36,7 @@ def rev_var(n):
     if n > div_j:
         j = (n - 1) // (div_j)
         n = n - (j * div_j)
-    k = n
+    k = n - 1
     return [i, j, k]
 
 
@@ -66,6 +66,13 @@ def get_mines(board):
             if board[i][j] == 12:
                 count -= 1
     return count
+
+
+def var(i, j):
+    if columns < 11:
+        return (i * 11 * 11) + (j * 11) + 10
+    else:
+        return (i * columns * columns) + (j * columns) + 10
 
 
 # Generate Mine board function
@@ -105,6 +112,7 @@ def mine_board(r, c, n, first, setup):
         return board
 
     else:
+        old_board = []
         random.seed()
         mines = []
         x = 0
@@ -114,24 +122,24 @@ def mine_board(r, c, n, first, setup):
             check = True
             i = -1
             j = -1
-            step = 20
             while check == True:
                 check = False
                 i = random.randint(0, r - 1)
                 j = random.randint(0, c - 1)
                 if [i, j] == first or [i, j] in mines:
                     check = True
-                for a in range(-1, 2):
-                    for b in range(-1, 2):
-                        if (a + first[0] > -1 and a + first[0] < rows) and (
-                            b + first[1] > -1 and b + first[1] < columns
-                        ):
-                            if first[0] + a == i and first[1] + b == j:
-                                check = True
-                if check != True:
-
+                if check == False:
+                    for a in range(-1, 2):
+                        for b in range(-1, 2):
+                            if check == False:
+                                if (a + first[0] > -1 and a + first[0] < rows) and (
+                                    b + first[1] > -1 and b + first[1] < columns
+                                ):
+                                    if first[0] + a == i and first[1] + b == j:
+                                        check = True
+                                        break
+                if check == False:
                     if x == n:
-
                         answer = []
                         for y in range(0, r):
                             temp_list = []
@@ -142,11 +150,35 @@ def mine_board(r, c, n, first, setup):
                                     temp_list.append(10)
                             answer.append(temp_list)
                         answer = generate_numbers(answer, r, c)
-                        # print_board(answer)
+                        print_board(answer)
                         current_board = create_empty_board(rows, columns)
-                        # print_board(current_board)
                         take_turn(answer, current_board, [first[0], first[1]], False)
-                        # print_board(current_board)
+                        if old_board != []:
+                            for y in range(0, rows):
+                                for z in range(0, columns):
+                                    if old_board[y][z] == answer[y][z] or (
+                                        old_board[y][z] == flag and answer[y][z] == mine
+                                    ):
+                                        around_check = True
+                                        for a in range(-1, 2):
+                                            for b in range(-1, 2):
+                                                if (a + y > -1 and a + y < rows) and (
+                                                    b + z > -1 and b + z < columns
+                                                ):
+                                                    if (
+                                                        old_board[y + a][z + b]
+                                                        != answer[y + a][z + b]
+                                                        or (
+                                                            old_board[y + a][z + b]
+                                                            == flag
+                                                            and answer[y + a][z + b]
+                                                            == mine
+                                                        )
+                                                        == False
+                                                    ):
+                                                        around_check = False
+                                        if around_check == True:
+                                            current_board[y][z] = old_board[y][z]
                         changed = True
                         while changed == True:
                             changed = solve_current_state(
@@ -157,15 +189,51 @@ def mine_board(r, c, n, first, setup):
                             print("Mines Left: " + str(get_mines(current_board)))
                             if state == "Win":
                                 print("OK")
-
                                 break
                         if changed == False:
-                            print_board(answer)
+                            old_board = []
+                            for y in range(0, rows):
+                                temp_list = []
+                                for z in range(0, columns):
+                                    temp_list.append(current_board[y][z])
+                                old_board.append(temp_list)
+                            # print_board(answer)
                             check = True
                             for mine in mines:
-                                if current_board[mine[0]][mine[1]] == undiscovered:
-                                    mines.remove(mine)
-                                    x -= 1
+                                removed = False
+                                for a in range(-1, 2):
+                                    for b in range(-1, 2):
+                                        if (
+                                            a + mine[0] > -1 and a + mine[0] < rows
+                                        ) and (
+                                            b + mine[1] > -1
+                                            and b + mine[1] < columns
+                                            and (a != 0 or b != 0)
+                                        ):
+                                            if (
+                                                removed == False
+                                                and current_board[mine[0]][mine[1]]
+                                                == undiscovered
+                                                and (
+                                                    current_board[mine[0] + a][
+                                                        mine[1] + b
+                                                    ]
+                                                )
+                                                in [
+                                                    1,
+                                                    2,
+                                                    3,
+                                                    4,
+                                                    5,
+                                                    6,
+                                                    7,
+                                                    8,
+                                                ]
+                                            ):
+
+                                                mines.remove(mine)
+                                                x -= 1
+                                                removed = True
             mines.append([i, j])
 
         board = []
@@ -298,6 +366,7 @@ def solve_current_state(current_board, board_answer, mines):
             temp.append(j)
         prev_board.append(temp)
     [sat, solution] = sat_solve.solve(sat_solve, current_board, mines)
+    # print(sat)
     for i in range(1, len(solution)):
         [a, b, c] = rev_var(i)
         base = 11
@@ -306,10 +375,10 @@ def solve_current_state(current_board, board_answer, mines):
         decider = 0
         if base > 11:
             decider = 11
-        if i % base == decider and solution[i] == True:
+        if c == decider and solution[i] == True:
             current_board = take_turn(board_answer, current_board, [a, b], False)
             clear_zeros(board_answer, current_board, a, b)
-        if i % base == 9 and solution[i] == True:
+        if c == 9 and solution[i] == True:
             current_board = take_turn(board_answer, current_board, [a, b], True)
         state = game_state(current_board, board_answer)
         if state == "Win" or state == "Lose":

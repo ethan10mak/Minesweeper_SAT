@@ -12,7 +12,7 @@ undiscovered = 10
 safe = 11
 flag = 12
 
-k_values = [1, 2, 3, 4, 5, 6, 7, 8, mine, undiscovered, safe]
+k_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, mine, undiscovered, safe]
 
 
 class sat_solve:
@@ -29,9 +29,9 @@ class sat_solve:
     # Need to find a formula that can return any dimensions
     def var(i, j, k):
         if columns < 11:
-            return (i * 11 * 11) + (j * 11) + k
+            return (i * 11 * 11) + (j * 11) + k + 1
         else:
-            return (i * columns * columns) + (j * columns) + k
+            return (i * columns * columns) + (j * columns) + k + 1
         # return (i - 1) * rows * columns + (j - 1) * columns + (k - 1) + 1
 
     # Checks surrounding area of tile if undiscovered area are mines
@@ -236,7 +236,7 @@ class sat_solve:
             for j in range(0, columns):
                 # If the state number equals the number of undiscovered squares next to it,
                 # Create a clause that sets the undiscovered squares to mines
-                if board[i][j] in [1, 2, 3, 4, 5, 6, 7, 8, 12]:
+                if board[i][j] in [0, 1, 2, 3, 4, 5, 6, 7, 8, 12]:
                     clauses.append([self.var(i, j, board[i][j])])
                 # Checks surrounding area for mines
                 mines = self.check_mines(board, i, j)
